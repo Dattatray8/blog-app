@@ -1,18 +1,29 @@
 import Blog from "../models/blog.model.js";
+import User from "../models/user.model.js";
 
 export const createBlog = async (req, res) => {
   try {
-    const { title, description, draft } = req.body;
-    if (!title || !description) {
-      return res
-        .status(400)
-        .json({ message: "Title or Description is missing!" });
+    const { title, description, draft, creatorId } = req.body;
+    if (!title || !description || !creatorId) {
+      return res.status(400).json({
+        message:
+          "Title or Description is missing! or You are not Authenticated",
+      });
     }
-    await Blog.create({
+    const creator = await User.findById(creatorId);
+    if (!creator) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Author not found" });
+    }
+    let blog = await Blog.create({
       title,
       description,
       draft,
+      creator: creator._id,
     });
+    creator.blogs.push(blog._id);
+    await creator.save();
     return res.status(201).json({
       success: true,
       message: "Blog Created Successfully",
