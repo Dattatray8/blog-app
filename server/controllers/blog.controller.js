@@ -39,7 +39,7 @@ export const createBlog = async (req, res) => {
 
 export const getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find({ draft: false });
+    const blogs = await Blog.find({ draft: false }).populate("creator", "name");
     return res.status(200).json({
       success: true,
       message: "Blogs fetched successfully",
@@ -57,7 +57,7 @@ export const getBlogs = async (req, res) => {
 export const getBlog = async (req, res) => {
   try {
     const id = req.params.id;
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findById(id).populate("creator", "name");
     return res
       .status(200)
       .json({ success: true, message: "Blog Fetched Successfully", blog });
